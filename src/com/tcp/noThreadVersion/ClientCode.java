@@ -1,4 +1,4 @@
-package com.tcp;
+package com.tcp.noThreadVersion;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -21,17 +21,16 @@ public class ClientCode {
             BufferedReader sin = new BufferedReader(new InputStreamReader(System.in));
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
-
-            out.println("Hello Server,I am " + clientName);
-            String readline, str;
+            //send message to
+            String cmd, reply;
             while (true) {
-                str = in.readLine();
-                System.out.println("message received from server: " + str);
-                readline = sin.readLine();
-                out.println(readline);
+                cmd = sin.readLine();
+                out.println(cmd);
                 out.flush();
-                if (readline.equals("byebye"))
+                if (cmd.equals("byebye"))
                     break;
+                reply = in.readLine();
+                System.out.println("message received from server: " + reply);
             }
         } finally {
             System.out.println("close the Client socket and the io.");
