@@ -1,24 +1,22 @@
-package com.tcp.threadVersion;
+package com.queuingSystem.console;
 
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 
 /**
- * Created by 风之凌殇 on 2016/1/3.
+ * Created by 风之凌殇 on 2016/1/8.
  */
-class ClientThreadCode extends Thread {
-    //thread count, used for serialise numbering the thread
-    private static int cnt = 0;
+
+class ThreadTicketMachine extends Thread {
     //client side socket
     private Socket socket;
-    private int clientId = cnt++;
     private BufferedReader in;
     private PrintWriter out;
     private BufferedReader sin;
 
     //constructor
-    public ClientThreadCode(InetAddress addr) {
+    public ThreadTicketMachine(InetAddress addr) {
         try {
             socket = new Socket(addr, 3333);
         } catch (IOException e) {
@@ -44,17 +42,26 @@ class ClientThreadCode extends Thread {
 
     public void run() {
         try {
-            String cmd = "new counter";
+            //create the new counter
+            String cmd = "new ticket machine";
             out.println(cmd);
             String reply = in.readLine();
             System.out.println(reply);
+            //main body
             for (; ; ) {
+                // cmd will be determined by the button pressed
                 cmd = sin.readLine();
                 out.println(cmd);
-                if (cmd.equals("stop counter") || cmd.equals("stop ticket machine"))
+                switch (cmd) {
+                    case "new customer":
+                        reply = in.readLine();
+                        System.out.println(reply);
+                        break;
+                    default:
+                        break;
+                }
+                if (cmd.equals("stop ticket machine"))
                     break;
-//                reply = in.readLine();
-//                System.out.println(reply);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -68,14 +75,11 @@ class ClientThreadCode extends Thread {
     }
 }
 
-public class ThreadClient {
+public class TicketMachineCreator_____ {
     public static void main(String[] args) throws IOException, InterruptedException {
-        int threadNo = 0;
+        //TODO set the ip in the Client UI
         InetAddress addr = InetAddress.getByName("localhost");
 //        InetAddress addr = InetAddress.getByName("10.171.44.41");
-        System.out.println("HostAddress :" + addr.getHostAddress());
-        System.out.println("HostName :" + addr.getHostName());
-        new ClientThreadCode(addr);
-
+        new ThreadTicketMachine(addr);
     }
 }
