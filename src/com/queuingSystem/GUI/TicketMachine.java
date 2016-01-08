@@ -3,7 +3,9 @@ package com.queuingSystem.GUI;
 import javax.swing.*;
 import java.awt.event.*;
 import java.io.*;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 /**
  * Created by 风之凌殇 on 2016/1/8.
@@ -18,6 +20,8 @@ public class TicketMachine {
     private JFrame frame;
     //client side socket
     private Socket socket;
+    //socket for updating queue size in ui
+    private Updater updater;
     private BufferedReader in;
     private PrintWriter out;
     private BufferedReader sin;
@@ -71,14 +75,18 @@ public class TicketMachine {
             }
         }
 
+        try {
+            updater = new Updater(InetAddress.getByName(ip), port, "new ticketMachine updater", numbers);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+
         newCustomer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
                     out.println("new customer");
                     String reply = in.readLine();
-                    String customerInQueue = "队列人数: " + in.readLine();
-                    numbers.setText(customerInQueue);
                     JOptionPane.showMessageDialog(null, reply, "Message from the server", JOptionPane.INFORMATION_MESSAGE);
                 } catch (IOException e1) {
                     e1.printStackTrace();

@@ -63,7 +63,6 @@ class ServerThreadCode extends Thread {
                     case "new counter":
                         clientId = ++counterSerializer;
                         availableCounters.add(NOT_IN_USE);
-                        counters.put(clientId, clientSocket);
                         out.println("Add desk " + clientId);
                         out.println(customers.size());
                         System.out.println("Add desk " + clientId);
@@ -72,6 +71,10 @@ class ServerThreadCode extends Thread {
                     case "stop counter":
                         if (isIdle) {
                             availableCounters.setElementAt(STOPPED, clientId);
+                            //stop and remove corresponding Updater socket
+                            PrintWriter _out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(counters.get(clientId).getOutputStream())), true);
+                            _out.println("stop");
+
                             counters.remove(clientId);
                             System.out.println("Desk " + clientId + " is stopped and still have " + customers.size() + " customers in queue");
                             out.println("success");
@@ -87,8 +90,8 @@ class ServerThreadCode extends Thread {
                                 customerId = customers.pop();
                                 System.out.println("Desk " + clientId + " is now serving for customer " + customerId);
                                 out.println(customerId);
-                                out.println(customers.size());
-
+                                //send new queue size to all the in-use Updater
+                                fireUpdater();
                                 availableCounters.setElementAt(IN_USE, clientId);
                                 isIdle = false;
                             } else {
@@ -113,7 +116,6 @@ class ServerThreadCode extends Thread {
                     case "new ticket machine":
                         clientId = ++ticketMachineSerializer;
                         availableTicketMachines.add(OPENING);
-                        ticketMachines.put(clientId, clientSocket);
                         out.println("Add ticket machines " + clientId);
                         out.println(customers.size());
                         System.out.println("Add ticket machines " + clientId);
@@ -121,6 +123,8 @@ class ServerThreadCode extends Thread {
 
                     case "stop ticket machine":
                         availableTicketMachines.setElementAt(STOPPED, clientId);
+                        PrintWriter _out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(ticketMachines.get(clientId).getOutputStream())), true);
+                        _out.println("stop");
                         ticketMachines.remove(clientId);
                         System.out.println("Ticket machine " + clientId + " is stopped and still have " + customers.size() + " customers in queue");
                         break;
@@ -128,15 +132,25 @@ class ServerThreadCode extends Thread {
                     case "new customer":
                         customers.add(++customerSerializer);
                         out.println("customer id : " + customerSerializer);
-                        out.println(customers.size());
+                        fireUpdater();
                         System.out.println("customer " + customerSerializer + " is enqueue");
                         break;
 
-                    //update queue size
+                    /* update queue size */
                     case "current queue size":
                         out.println(customers.size());
                         break;
-                    //if program works normally, this would not be invoked
+
+                    case "new counter updater":
+                        //ToDO
+                        counters.put(counterSerializer, clientSocket);
+                        break;
+
+                    case "new ticketMachine updater":
+                        ticketMachines.put(ticketMachineSerializer, clientSocket);
+                        break;
+
+                    /* if program works normally, this would not be invoked */
                     default:
                         out.println("wrong command");
                         break;
@@ -153,6 +167,29 @@ class ServerThreadCode extends Thread {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void fireUpdater() {
+        for (int i = 0; i < availableCounters.size(); ++i)
+            if (availableCounters.get(i) != STOPPED) {
+                try {
+                    System.out.println("test for fireUpdater");
+                    PrintWriter _out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(counters.get(i).getOutputStream())), true);
+                    _out.println(customers.size());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        for (int i = 0; i < availableTicketMachines.size(); ++i) {
+            if (availableTicketMachines.get(i) != STOPPED)
+                try {
+                    PrintWriter _out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(ticketMachines.get(i).getOutputStream())), true);
+                    _out.println(customers.size());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+        }
+
     }
 }
 

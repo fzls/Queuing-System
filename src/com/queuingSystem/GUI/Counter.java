@@ -1,9 +1,12 @@
 package com.queuingSystem.GUI;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 /**
  * Created by 风之凌殇 on 2016/1/8.
@@ -20,6 +23,8 @@ public class Counter {
     private JFrame frame;
     //client side socket
     private Socket socket;
+    //socket for updating number of people in queue
+    private Updater updater;
     private BufferedReader in;
     private PrintWriter out;
 
@@ -29,6 +34,7 @@ public class Counter {
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.pack();
         name.setText("餐桌 " + (++cnt));
+        state.setForeground(Color.BLUE);
         frame.setSize(300, 200);
         frame.setVisible(true);
 
@@ -71,6 +77,11 @@ public class Counter {
                 e2.printStackTrace();
             }
         }
+        try {
+            updater = new Updater(InetAddress.getByName(ip), port, "new counter updater", numbers);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
 
         serverTheClient.addActionListener(new ActionListener() {
             @Override
@@ -82,9 +93,8 @@ public class Counter {
                         JOptionPane.showMessageDialog(null, reply, "Message from the server", JOptionPane.WARNING_MESSAGE);
                     else {
                         int customerId = Integer.parseInt(reply);
-                        String customerInQueue = "队列人数: " + in.readLine();
-                        numbers.setText(customerInQueue);
                         state.setText("使用中");
+                        state.setForeground(Color.red);
                         JOptionPane.showMessageDialog(null, "客户 " + customerId + " 入座", "Message from the server", JOptionPane.INFORMATION_MESSAGE);
                     }
                 } catch (IOException e1) {
@@ -117,6 +127,7 @@ public class Counter {
                     String reply = in.readLine();
                     if (!reply.equals("当前座位无人。")) {
                         state.setText("空闲");
+                        state.setForeground(Color.BLUE);
                         JOptionPane.showMessageDialog(null, "客户 " + reply + " 完成就餐。", "Message from the server", JOptionPane.INFORMATION_MESSAGE);
                     } else {
                         JOptionPane.showMessageDialog(null, reply, "Message from the server", JOptionPane.WARNING_MESSAGE);
