@@ -24,13 +24,17 @@ public class Counter {
     private PrintWriter out;
 
     public Counter(String ip, int port) {
-        frame = new JFrame("Counter");
+        frame = new JFrame("餐桌");
         frame.setContentPane(panel);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.pack();
-        name.setText("柜台 " + (++cnt));
+        name.setText("餐桌 " + (++cnt));
         frame.setSize(300, 200);
         frame.setVisible(true);
+
+        serverTheClient.setMnemonic('n');
+        finishService.setMnemonic('f');
+        shutdown.setMnemonic('s');
 
         try {
             socket = new Socket(ip, port);
@@ -74,19 +78,18 @@ public class Counter {
                 try {
                     out.println("start server the client");
                     String reply = in.readLine();
-                    if (reply.equals("WARNING : there is no client in the queue") || reply.equals("WARNING : current customer has not finish service"))
+                    if (reply.equals("后面已无人等待，无人可以入座。") || reply.equals("当前座位有人，新客户无法入座。"))
                         JOptionPane.showMessageDialog(null, reply, "Message from the server", JOptionPane.WARNING_MESSAGE);
                     else {
                         int customerId = Integer.parseInt(reply);
                         String customerInQueue = "队列人数: " + in.readLine();
                         numbers.setText(customerInQueue);
-                        state.setText("工作中");
-                        JOptionPane.showMessageDialog(null, "assigned customer " + customerId, "Message from the server", JOptionPane.INFORMATION_MESSAGE);
+                        state.setText("使用中");
+                        JOptionPane.showMessageDialog(null, "客户 " + customerId + " 入座", "Message from the server", JOptionPane.INFORMATION_MESSAGE);
                     }
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
-
             }
         });
         shutdown.addActionListener(new ActionListener() {
@@ -112,9 +115,9 @@ public class Counter {
                 try {
                     out.println("finish serve client");
                     String reply = in.readLine();
-                    if (!reply.equals("WARNING : no customer in service")) {
+                    if (!reply.equals("当前座位无人。")) {
                         state.setText("空闲");
-                        JOptionPane.showMessageDialog(null, "customer " + reply + " finish the service", "Message from the server", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "客户 " + reply + " 完成就餐。", "Message from the server", JOptionPane.INFORMATION_MESSAGE);
                     } else {
                         JOptionPane.showMessageDialog(null, reply, "Message from the server", JOptionPane.WARNING_MESSAGE);
                     }

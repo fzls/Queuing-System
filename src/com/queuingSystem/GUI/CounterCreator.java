@@ -15,11 +15,13 @@ public class CounterCreator {
     private JFrame frame;
 
     public CounterCreator() {
-        frame = new JFrame("CounterCreator");
+        frame = new JFrame("家具市场");
         frame.setContentPane(panel);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+
+        createNewCounter.setMnemonic('n');
 
         createNewCounter.addActionListener(new ActionListener() {
             @Override

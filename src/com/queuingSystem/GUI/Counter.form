@@ -13,7 +13,7 @@
           <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="服务下一个客户"/>
+          <text value="入座就餐"/>
         </properties>
       </component>
       <component id="76eb9" class="javax.swing.JButton" binding="shutdown">
@@ -21,7 +21,7 @@
           <grid row="3" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="下班"/>
+          <text value="撤除"/>
         </properties>
       </component>
       <component id="ecdaa" class="javax.swing.JButton" binding="finishService">
@@ -29,7 +29,7 @@
           <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="结束服务当前客户"/>
+          <text value="吃饱离座"/>
         </properties>
       </component>
       <component id="b17fe" class="javax.swing.JLabel" binding="name">
@@ -37,7 +37,7 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="取号机"/>
+          <text value="餐桌"/>
         </properties>
       </component>
       <component id="2a9d8" class="javax.swing.JLabel" binding="numbers">

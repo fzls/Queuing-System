@@ -1,6 +1,7 @@
 package com.queuingSystem;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -63,39 +64,38 @@ class ServerThreadCode extends Thread {
                         clientId = ++counterSerializer;
                         availableCounters.add(NOT_IN_USE);
                         counters.put(clientId, clientSocket);
-                        out.println("Add counter " + clientId);
+                        out.println("Add desk " + clientId);
                         out.println(customers.size());
-                        System.out.println("Add counter " + clientId);
+                        System.out.println("Add desk " + clientId);
                         break;
 
                     case "stop counter":
                         if (isIdle) {
                             availableCounters.setElementAt(STOPPED, clientId);
                             counters.remove(clientId);
-                            System.out.println("Counter " + clientId + " is stopped");
+                            System.out.println("Desk " + clientId + " is stopped and still have " + customers.size() + " customers in queue");
                             out.println("success");
                         } else {
-                            out.println("your current customer has not been served, please leave after you finish it");
+                            out.println("本座位的顾客仍在就餐中，请稍后再撤离座位。");
                         }
 
                         break;
 
                     case "start server the client":
-                        //若队列中有客户，则分配队列中的客户给该柜台
                         if (isIdle) {
                             if (!customers.isEmpty()) {
                                 customerId = customers.pop();
-                                System.out.println("Counter " + clientId + " start serving for customer " + customerId);
+                                System.out.println("Desk " + clientId + " is now serving for customer " + customerId);
                                 out.println(customerId);
                                 out.println(customers.size());
 
                                 availableCounters.setElementAt(IN_USE, clientId);
                                 isIdle = false;
                             } else {
-                                out.println("WARNING : there is no client in the queue");
+                                out.println("后面已无人等待，无人可以入座。");
                             }
                         } else {
-                            out.println("WARNING : current customer has not finish service");
+                            out.println("当前座位有人，新客户无法入座。");
                         }
                         break;
 
@@ -106,7 +106,7 @@ class ServerThreadCode extends Thread {
                             availableCounters.setElementAt(NOT_IN_USE, clientId);
                             isIdle = true;
                         } else
-                            out.println("WARNING : no customer in service");
+                            out.println("当前座位无人。");
                         break;
 
                     /* receive from ticket machine */
@@ -122,7 +122,7 @@ class ServerThreadCode extends Thread {
                     case "stop ticket machine":
                         availableTicketMachines.setElementAt(STOPPED, clientId);
                         ticketMachines.remove(clientId);
-                        System.out.println("Ticket machine " + clientId + " is stopped");
+                        System.out.println("Ticket machine " + clientId + " is stopped and still have " + customers.size() + " customers in queue");
                         break;
 
                     case "new customer":
@@ -168,11 +168,14 @@ public class Host {
 
     public static void main(String[] args) throws IOException {
         //server side socket
-        System.out.println("enter you local port number");
+        System.out.println("enter you local port number, better larger than 1024");
         Scanner in = new Scanner(System.in);
         portNo = in.nextInt();
         ServerSocket s = new ServerSocket(portNo);
-        System.out.println("The Server is start: " + s);
+        System.out.println("The Server is start");
+        InetAddress local = InetAddress.getLocalHost();
+        System.out.println("Hostname    : " + local.getHostName());
+        System.out.println("HostAddress : " + local.getHostAddress() + ":" + portNo);
         try {
             for (; ; ) {
                 Socket socket = s.accept();

@@ -31,6 +31,9 @@ public class TicketMachine {
         frame.setSize(300, 200);
         frame.setVisible(true);
 
+        newCustomer.setMnemonic('n');
+        shutdown.setMnemonic('s');
+
         try {
             socket = new Socket(ip, port);
         } catch (IOException e) {

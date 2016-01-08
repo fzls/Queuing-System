@@ -21,6 +21,8 @@ public class TicketMachineCreator {
         frame.pack();
         frame.setVisible(true);
 
+        createNewTicketMachine.setMnemonic('n');
+
         createNewTicketMachine.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
