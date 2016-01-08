@@ -89,7 +89,6 @@ class ThreadCounter extends Thread {
 
 public class Counter {
     public static void main(String[] args) throws IOException, InterruptedException {
-        //TODO set the ip in the Client UI
         InetAddress addr = InetAddress.getByName("localhost");
 //        InetAddress addr = InetAddress.getByName("10.171.44.41");
         new ThreadCounter(addr);

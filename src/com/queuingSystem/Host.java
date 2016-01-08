@@ -157,7 +157,6 @@ class ServerThreadCode extends Thread {
 }
 
 public class Host {
-    //TODO ip and portNo should be set in the UI
     //port
     private static int portNo = 2333;
     private static LinkedList<Integer> customers = new LinkedList<>();

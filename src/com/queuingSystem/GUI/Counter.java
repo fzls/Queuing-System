@@ -126,8 +126,7 @@ public class Counter {
                 }
             }
         });
-        numbers.addComponentListener(new ComponentAdapter() {
-        });
+
         numbers.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
