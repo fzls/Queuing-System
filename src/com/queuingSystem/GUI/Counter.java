@@ -8,26 +8,27 @@ import java.net.Socket;
 /**
  * Created by 风之凌殇 on 2016/1/8.
  */
-public class TicketMachine {
+public class Counter {
     private static int cnt = -1;
-    private JButton newCustomer;
+    private JButton serverTheClient;
     private JButton shutdown;
     private JPanel panel;
+    private JButton finishService;
     private JLabel name;
     private JLabel numbers;
+    private JLabel state;
     private JFrame frame;
     //client side socket
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
-    private BufferedReader sin;
 
-    public TicketMachine(String ip, int port) {
-        frame = new JFrame("TicketMachine");
+    public Counter(String ip, int port) {
+        frame = new JFrame("Counter");
         frame.setContentPane(panel);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.pack();
-        name.setText("取号机 " + (++cnt));
+        name.setText("柜台 " + (++cnt));
         frame.setSize(300, 200);
         frame.setVisible(true);
 
@@ -40,12 +41,11 @@ public class TicketMachine {
         try {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
-            sin = new BufferedReader(new InputStreamReader(System.in));
 
             //
             try {
                 //create the new counter
-                String cmd = "new ticket machine";
+                String cmd = "new counter";
                 out.println(cmd);
                 String reply = in.readLine();
                 String customerInQueue = "队列人数: " + in.readLine();
@@ -68,15 +68,21 @@ public class TicketMachine {
             }
         }
 
-        newCustomer.addActionListener(new ActionListener() {
+        serverTheClient.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    out.println("new customer");
+                    out.println("start server the client");
                     String reply = in.readLine();
-                    String customerInQueue = "队列人数: " + in.readLine();
-                    numbers.setText(customerInQueue);
-                    JOptionPane.showMessageDialog(null, reply, "Message from the server", JOptionPane.INFORMATION_MESSAGE);
+                    if (reply.equals("WARNING : there is no client in the queue") || reply.equals("WARNING : current customer has not finish service"))
+                        JOptionPane.showMessageDialog(null, reply, "Message from the server", JOptionPane.WARNING_MESSAGE);
+                    else {
+                        int customerId = Integer.parseInt(reply);
+                        String customerInQueue = "队列人数: " + in.readLine();
+                        numbers.setText(customerInQueue);
+                        state.setText("工作中");
+                        JOptionPane.showMessageDialog(null, "assigned customer " + customerId, "Message from the server", JOptionPane.INFORMATION_MESSAGE);
+                    }
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -86,9 +92,38 @@ public class TicketMachine {
         shutdown.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                out.println("stop ticket machine");
-                frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+                try {
+                    out.println("stop counter");
+                    String reply = in.readLine();
+                    if (reply.equals("success")) {
+                        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+                    } else {
+                        JOptionPane.showMessageDialog(null, reply, "Message from the server", JOptionPane.WARNING_MESSAGE);
+                    }
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+
             }
+        });
+        finishService.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    out.println("finish serve client");
+                    String reply = in.readLine();
+                    if (!reply.equals("WARNING : no customer in service")) {
+                        state.setText("空闲");
+                        JOptionPane.showMessageDialog(null, "customer " + reply + " finish the service", "Message from the server", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(null, reply, "Message from the server", JOptionPane.WARNING_MESSAGE);
+                    }
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        numbers.addComponentListener(new ComponentAdapter() {
         });
         numbers.addMouseListener(new MouseAdapter() {
             @Override
@@ -102,11 +137,14 @@ public class TicketMachine {
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
+
             }
+        });
+        numbers.addMouseMotionListener(new MouseMotionAdapter() {
         });
     }
 
     public static void main(String[] args) {
-        new TicketMachine("localhost", 2333);
+        new Counter("localhost", 2333);
     }
 }

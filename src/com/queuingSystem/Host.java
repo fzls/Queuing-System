@@ -38,12 +38,6 @@ class ServerThreadCode extends Thread {
     private BufferedReader in;
     private PrintWriter out;
 
-    //default constructor
-    public ServerThreadCode() {
-
-    }
-
-
     public ServerThreadCode(Socket s, LinkedList<Integer> _customers, Vector<Integer> _availableCounters, Vector<Integer> _availableTicketMachines, HashMap<Integer, Socket> _counters, HashMap<Integer, Socket> _ticketMachines) throws IOException {
         customers = _customers;
         availableCounters = _availableCounters;
@@ -63,7 +57,6 @@ class ServerThreadCode extends Thread {
         try {
             for (; ; ) {
                 String cmd = in.readLine();
-                System.out.println("command is : " + cmd);
                 switch (cmd) {
                     /* receive from counter client */
                     case "new counter":
@@ -71,14 +64,20 @@ class ServerThreadCode extends Thread {
                         availableCounters.add(NOT_IN_USE);
                         counters.put(clientId, clientSocket);
                         out.println("Add counter " + clientId);
-//                        out.println(customers.size());
+                        out.println(customers.size());
                         System.out.println("Add counter " + clientId);
                         break;
 
                     case "stop counter":
-                        availableCounters.setElementAt(STOPPED, clientId);
-                        counters.remove(clientId);
-                        System.out.println("Counter " + clientId + " is stopped");
+                        if (isIdle) {
+                            availableCounters.setElementAt(STOPPED, clientId);
+                            counters.remove(clientId);
+                            System.out.println("Counter " + clientId + " is stopped");
+                            out.println("success");
+                        } else {
+                            out.println("your current customer has not been served, please leave after you finish it");
+                        }
+
                         break;
 
                     case "start server the client":
@@ -88,20 +87,23 @@ class ServerThreadCode extends Thread {
                                 customerId = customers.pop();
                                 System.out.println("Counter " + clientId + " start serving for customer " + customerId);
                                 out.println(customerId);
+                                out.println(customers.size());
+
+                                availableCounters.setElementAt(IN_USE, clientId);
                                 isIdle = false;
                             } else {
-                                out.println("there is no client in the queue");
+                                out.println("WARNING : there is no client in the queue");
                             }
                         } else {
                             out.println("WARNING : current customer has not finish service");
                         }
-//                        out.println(customers.size());
                         break;
 
                     case "finish serve client":
                         if (!isIdle) {
                             out.println(customerId);
                             System.out.println("customer " + customerId + " finish the service" + " in counter " + clientId);
+                            availableCounters.setElementAt(NOT_IN_USE, clientId);
                             isIdle = true;
                         } else
                             out.println("WARNING : no customer in service");
@@ -130,19 +132,21 @@ class ServerThreadCode extends Thread {
                         System.out.println("customer " + customerSerializer + " is enqueue");
                         break;
 
+                    //update queue size
+                    case "current queue size":
+                        out.println(customers.size());
+                        break;
                     //if program works normally, this would not be invoked
                     default:
                         out.println("wrong command");
                         break;
                 }
-                if (cmd.equals("stop counter") || cmd.equals("stop ticket machine"))
+                if (isIdle && (cmd.equals("stop counter") || cmd.equals("stop ticket machine")))
                     break;
             }
-            System.out.println("closing the server socket!");
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            System.out.println("close the Server socket and the io.");
             try {
                 clientSocket.close();
             } catch (IOException e) {
