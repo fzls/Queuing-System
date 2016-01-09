@@ -42,7 +42,6 @@ class ServerThreadCode extends Thread {
     private PrintWriter out;
     //player
     private MusicPlayer musicPlayer = new MusicPlayer();
-    private String desk = "src/com/queuingSystem/sounds/desk.wav";
     private String[] digits = new String[]{
             "src/com/queuingSystem/sounds/0.wav",
             "src/com/queuingSystem/sounds/1.wav",
@@ -54,9 +53,16 @@ class ServerThreadCode extends Thread {
             "src/com/queuingSystem/sounds/7.wav",
             "src/com/queuingSystem/sounds/8.wav",
             "src/com/queuingSystem/sounds/9.wav",
+            "src/com/queuingSystem/sounds/ten.wav",
+            "src/com/queuingSystem/sounds/hundred.wav",
+            "src/com/queuingSystem/sounds/thousand.wav",
+            "src/com/queuingSystem/sounds/tenThousand.wav",
+
     };
-    private String customer = "src/com/queuingSystem/sounds/customer.wav";
     private String please = "src/com/queuingSystem/sounds/please.wav";
+    private String customer = "src/com/queuingSystem/sounds/customer.wav";
+    private String desk = "src/com/queuingSystem/sounds/desk.wav";
+
 
     public ServerThreadCode(Socket s, LinkedList<Integer> _customers, Vector<Integer> _availableCounters, Vector<Integer> _availableTicketMachines, HashMap<Integer, Socket> _counters, HashMap<Integer, Socket> _ticketMachines) throws IOException {
         customers = _customers;
@@ -78,7 +84,7 @@ class ServerThreadCode extends Thread {
             for (; ; ) {
                 String cmd = in.readLine();
                 switch (cmd) {
-                    /* receive from counter client */
+                /* receive from counter client */
                     case "new counter":
                         clientId = ++counterSerializer;
                         availableCounters.add(NOT_IN_USE);
@@ -90,7 +96,7 @@ class ServerThreadCode extends Thread {
                     case "stop counter":
                         if (isIdle) {
                             availableCounters.setElementAt(STOPPED, clientId);
-                            //stop and remove corresponding Updater socket
+                            //stop and remove corresponding Updater <风之凌殇>
                             PrintWriter _out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(counters.get(clientId).getOutputStream())), true);
                             _out.println("stop");
 
@@ -132,7 +138,7 @@ class ServerThreadCode extends Thread {
                             out.println("当前座位无人。");
                         break;
 
-                    /* receive from ticket machine */
+				/* receive from ticket machine */
                     case "new ticket machine":
                         clientId = ++ticketMachineSerializer;
                         availableTicketMachines.add(OPENING);
@@ -156,7 +162,7 @@ class ServerThreadCode extends Thread {
                         System.out.println("customer " + customerSerializer + " is enqueue");
                         break;
 
-                    /* update queue size */
+				/* update queue size */
                     case "current queue size":
                         out.println(customers.size());
                         break;
@@ -172,7 +178,7 @@ class ServerThreadCode extends Thread {
                     case "stop updater":
                         break;
 
-                    /* if program works normally, this would not be invoked */
+				/* if program works normally, this would not be invoked */
                     default:
                         out.println("wrong command");
                         break;
@@ -198,10 +204,16 @@ class ServerThreadCode extends Thread {
             musicPlayer.play(please);
             for (int i = 0; i < _customerId.length(); ++i) {
                 musicPlayer.play(digits[_customerId.charAt(i) - '0']);
+                int _digit = _customerId.length() - i + 8;
+                if (_digit >= 10)
+                    musicPlayer.play(digits[_digit]);
             }
             musicPlayer.play(customer);
             for (int i = 0; i < _clientId.length(); ++i) {
                 musicPlayer.play(digits[_clientId.charAt(i) - '0']);
+                int _digit = _clientId.length() - i + 8;
+                if (_digit >= 10)
+                    musicPlayer.play(digits[_digit]);
             }
             musicPlayer.play(desk);
         } catch (Exception e) {
@@ -243,7 +255,7 @@ public class Host {
 
     public static void main(String[] args) throws IOException {
         //server side socket
-        System.out.println("enter you local port number, better larger than 1024");
+        System.out.println("enter you local port number, better larger than 1024, and it should be no larger than 65535 :)");
         Scanner in = new Scanner(System.in);
         portNo = in.nextInt();
         ServerSocket s = new ServerSocket(portNo);
