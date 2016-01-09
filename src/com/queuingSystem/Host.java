@@ -142,7 +142,6 @@ class ServerThreadCode extends Thread {
                         break;
 
                     case "new counter updater":
-                        //ToDO
                         counters.put(counterSerializer, clientSocket);
                         break;
 
@@ -150,12 +149,15 @@ class ServerThreadCode extends Thread {
                         ticketMachines.put(ticketMachineSerializer, clientSocket);
                         break;
 
+                    case "stop updater":
+                        break;
+
                     /* if program works normally, this would not be invoked */
                     default:
                         out.println("wrong command");
                         break;
                 }
-                if (isIdle && (cmd.equals("stop counter") || cmd.equals("stop ticket machine")))
+                if (isIdle && (cmd.equals("stop counter") || cmd.equals("stop ticket machine") || cmd.equals("stop updater")))
                     break;
             }
         } catch (IOException e) {

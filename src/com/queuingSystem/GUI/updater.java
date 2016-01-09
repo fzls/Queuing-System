@@ -53,6 +53,7 @@ public class Updater extends Thread {
                     String customerInQueue = "队列人数: " + reply;
                     numbers.setText(customerInQueue);
                 } else {
+                    out.println("stop updater");
                     updater.close();
                     break;
                 }
