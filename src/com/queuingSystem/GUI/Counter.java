@@ -93,7 +93,7 @@ public class Counter {
                         JOptionPane.showMessageDialog(null, reply, "Message from the server", JOptionPane.WARNING_MESSAGE);
                     else {
                         int customerId = Integer.parseInt(reply);
-                        state.setText("使用中");
+                        state.setText("客户 " + customerId + " 使用中");
                         state.setForeground(Color.red);
                         JOptionPane.showMessageDialog(null, "客户 " + customerId + " 入座", "Message from the server", JOptionPane.INFORMATION_MESSAGE);
                     }

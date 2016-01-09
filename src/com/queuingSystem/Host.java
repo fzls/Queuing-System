@@ -1,5 +1,7 @@
 package com.queuingSystem;
 
+import com.queuingSystem.sounds.MusicPlayer;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -19,7 +21,7 @@ class ServerThreadCode extends Thread {
     private static final int OPENING = 1;
     private static final int NOT_IN_USE = 2;
     private static final int IN_USE = 3;
-    private static final int ALREADY_SERVEED = 4;
+    //    private static final int ALREADY_SERVEED = 4;
     private static int counterSerializer = -1;
     private static int ticketMachineSerializer = -1;
     private static int customerSerializer = -1;
@@ -38,6 +40,24 @@ class ServerThreadCode extends Thread {
     //IO handle
     private BufferedReader in;
     private PrintWriter out;
+    //player
+    private MusicPlayer musicPlayer = new MusicPlayer();
+    //TODO music
+    private String desk = "src/com/queuingSystem/sounds/desk.wav";
+    private String[] digits = new String[]{
+            "src/com/queuingSystem/sounds/0.wav",
+            "src/com/queuingSystem/sounds/1.wav",
+            "src/com/queuingSystem/sounds/2.wav",
+            "src/com/queuingSystem/sounds/3.wav",
+            "src/com/queuingSystem/sounds/4.wav",
+            "src/com/queuingSystem/sounds/5.wav",
+            "src/com/queuingSystem/sounds/6.wav",
+            "src/com/queuingSystem/sounds/7.wav",
+            "src/com/queuingSystem/sounds/8.wav",
+            "src/com/queuingSystem/sounds/9.wav",
+    };
+    private String customer = "src/com/queuingSystem/sounds/customer.wav";
+    private String please = "src/com/queuingSystem/sounds/please.wav";
 
     public ServerThreadCode(Socket s, LinkedList<Integer> _customers, Vector<Integer> _availableCounters, Vector<Integer> _availableTicketMachines, HashMap<Integer, Socket> _counters, HashMap<Integer, Socket> _ticketMachines) throws IOException {
         customers = _customers;
@@ -90,6 +110,7 @@ class ServerThreadCode extends Thread {
                                 customerId = customers.pop();
                                 System.out.println("Desk " + clientId + " is now serving for customer " + customerId);
                                 out.println(customerId);
+                                playNotice(customerId, clientId);
                                 //send new queue size to all the in-use Updater
                                 fireUpdater();
                                 availableCounters.setElementAt(IN_USE, clientId);
@@ -171,11 +192,28 @@ class ServerThreadCode extends Thread {
         }
     }
 
+    private void playNotice(int customerId, int clientId) {
+        String _customerId = Integer.toString(customerId);
+        String _clientId = Integer.toString(clientId);
+        try {
+            musicPlayer.play(please);
+            for (int i = 0; i < _customerId.length(); ++i) {
+                musicPlayer.play(digits[_customerId.charAt(i) - '0']);
+            }
+            musicPlayer.play(customer);
+            for (int i = 0; i < _clientId.length(); ++i) {
+                musicPlayer.play(digits[_clientId.charAt(i) - '0']);
+            }
+            musicPlayer.play(desk);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void fireUpdater() {
         for (int i = 0; i < availableCounters.size(); ++i)
             if (availableCounters.get(i) != STOPPED) {
                 try {
-                    System.out.println("test for fireUpdater");
                     PrintWriter _out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(counters.get(i).getOutputStream())), true);
                     _out.println(customers.size());
                 } catch (IOException e) {
