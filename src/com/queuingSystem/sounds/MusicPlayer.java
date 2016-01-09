@@ -7,6 +7,7 @@ package com.queuingSystem.sounds;
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Scanner;
 
 
 public class MusicPlayer {
@@ -36,12 +37,26 @@ public class MusicPlayer {
         String customer = "src/com/queuingSystem/sounds/customer.wav";
         String please = "src/com/queuingSystem/sounds/please.wav";
         try {
-            new MusicPlayer().play(digits[1]);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
-        } catch (UnsupportedAudioFileException e) {
+            MusicPlayer musicPlayer = new MusicPlayer();
+            while (true) {
+                Scanner in = new Scanner(System.in);
+                String _customerId = in.nextLine();
+                String _clientId = in.nextLine();
+                try {
+                    musicPlayer.play(please);
+                    for (int i = 0; i < _customerId.length(); ++i) {
+                        musicPlayer.play(digits[_customerId.charAt(i) - '0']);
+                    }
+                    musicPlayer.play(customer);
+                    for (int i = 0; i < _clientId.length(); ++i) {
+                        musicPlayer.play(digits[_clientId.charAt(i) - '0']);
+                    }
+                    musicPlayer.play(desk);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -52,12 +67,12 @@ public class MusicPlayer {
         audioFormat = audioInputStream.getFormat();
         dataLine_info = new DataLine.Info(SourceDataLine.class, audioFormat);
         sourceDataLine = (SourceDataLine) AudioSystem.getLine(dataLine_info);
-        byte[] b = new byte[1024];
-        int len = 0;
         sourceDataLine.open(audioFormat, 1024);
         sourceDataLine.start();
-        while ((len = audioInputStream.read(b)) > 0) {
-            sourceDataLine.write(b, 0, len);
+        byte[] buffer = new byte[1024];
+        int len = 0;
+        while ((len = audioInputStream.read(buffer)) > 0) {
+            sourceDataLine.write(buffer, 0, len);
         }
         audioInputStream.close();
         sourceDataLine.drain();

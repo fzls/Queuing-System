@@ -42,7 +42,6 @@ class ServerThreadCode extends Thread {
     private PrintWriter out;
     //player
     private MusicPlayer musicPlayer = new MusicPlayer();
-    //TODO music
     private String desk = "src/com/queuingSystem/sounds/desk.wav";
     private String[] digits = new String[]{
             "src/com/queuingSystem/sounds/0.wav",
