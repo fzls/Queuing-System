@@ -33,6 +33,10 @@ public class MusicPlayer {
                 "src/com/queuingSystem/sounds/7.wav",
                 "src/com/queuingSystem/sounds/8.wav",
                 "src/com/queuingSystem/sounds/9.wav",
+                "src/com/queuingSystem/sounds/ten.wav",
+                "src/com/queuingSystem/sounds/hundred.wav",
+                "src/com/queuingSystem/sounds/thousand.wav",
+                "src/com/queuingSystem/sounds/tenThousand.wav",
         };
         String customer = "src/com/queuingSystem/sounds/customer.wav";
         String please = "src/com/queuingSystem/sounds/please.wav";
@@ -40,18 +44,31 @@ public class MusicPlayer {
             MusicPlayer musicPlayer = new MusicPlayer();
             while (true) {
                 Scanner in = new Scanner(System.in);
-                String _customerId = in.nextLine();
-                String _clientId = in.nextLine();
+                String Id = in.nextLine();
                 try {
-                    musicPlayer.play(please);
-                    for (int i = 0; i < _customerId.length(); ++i) {
-                        musicPlayer.play(digits[_customerId.charAt(i) - '0']);
+                    int endingZeros = 0, index = Id.length() - 1;
+                    while (index >= 0 && Id.charAt(index) == '0') {
+                        endingZeros++;
+                        index--;
                     }
-                    musicPlayer.play(customer);
-                    for (int i = 0; i < _clientId.length(); ++i) {
-                        musicPlayer.play(digits[_clientId.charAt(i) - '0']);
+                    boolean successiveZero = false;
+                    for (int i = 0; i < Id.length(); ++i) {
+                        if (Id.length() == 2 && Id.charAt(0) == '1') {
+                            musicPlayer.play(digits[10]);
+                            if (Id.charAt(1) != '0')
+                                musicPlayer.play(digits[Id.charAt(1) - '0']);
+                            break;
+                        }
+                        if (i <= Id.length() - 2 && Id.charAt(i) == '0' && Id.charAt(i + 1) == '0')
+                            continue;
+                        else
+                            musicPlayer.play(digits[Id.charAt(i) - '0']);
+                        int _digit = Id.length() - i + 8;
+                        if (Id.charAt(i) != '0' && _digit >= 10)
+                            musicPlayer.play(digits[_digit]);
+                        if (i + endingZeros + 1 == Id.length())
+                            break;
                     }
-                    musicPlayer.play(desk);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

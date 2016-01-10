@@ -197,25 +197,50 @@ class ServerThreadCode extends Thread {
         }
     }
 
-    private void playNotice(int customerId, int clientId) {
+    private void playNotice(int customerId, int deskId) {
         String _customerId = Integer.toString(customerId);
-        String _clientId = Integer.toString(clientId);
+        String _deskId = Integer.toString(deskId);
         try {
             musicPlayer.play(please);
-            for (int i = 0; i < _customerId.length(); ++i) {
-                musicPlayer.play(digits[_customerId.charAt(i) - '0']);
-                int _digit = _customerId.length() - i + 8;
-                if (_digit >= 10)
-                    musicPlayer.play(digits[_digit]);
-            }
+            playId(_customerId);
             musicPlayer.play(customer);
-            for (int i = 0; i < _clientId.length(); ++i) {
-                musicPlayer.play(digits[_clientId.charAt(i) - '0']);
-                int _digit = _clientId.length() - i + 8;
-                if (_digit >= 10)
-                    musicPlayer.play(digits[_digit]);
-            }
+            playId(_deskId);
             musicPlayer.play(desk);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void playId(String Id) {
+        //0~99999 can be pronounced correctly
+        try {
+            //deal with numbers like 10000, 1900 which ending with several successive zeros
+            int endingZeros = 0, index = Id.length() - 1;
+            while (index >= 0 && Id.charAt(index) == '0') {
+                endingZeros++;
+                index--;
+            }
+            for (int i = 0; i < Id.length(); ++i) {
+                //deal with 10~19
+                if (Id.length() == 2 && Id.charAt(0) == '1') {
+                    musicPlayer.play(digits[10]);
+                    if (Id.charAt(1) != '0')
+                        musicPlayer.play(digits[Id.charAt(1) - '0']);
+                    break;
+                }
+                //deal with successive zeros that not in the middle by reading only the last one
+                if (i <= Id.length() - 2 && Id.charAt(i) == '0' && Id.charAt(i + 1) == '0')
+                    continue;
+                else
+                    musicPlayer.play(digits[Id.charAt(i) - '0']);
+                //pronounce 百，千，万 etc.
+                int _digit = Id.length() - i + 8;
+                if (Id.charAt(i) != '0' && _digit >= 10)
+                    musicPlayer.play(digits[_digit]);
+                //if comes to ending zero area, stop.
+                if (i + endingZeros + 1 == Id.length())
+                    break;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
