@@ -42,26 +42,25 @@ class ServerThreadCode extends Thread {
     private PrintWriter out;
     //player
     private MusicPlayer musicPlayer = new MusicPlayer();
-    private String[] digits = new String[]{
-            "src/com/queuingSystem/sounds/0.wav",
-            "src/com/queuingSystem/sounds/1.wav",
-            "src/com/queuingSystem/sounds/2.wav",
-            "src/com/queuingSystem/sounds/3.wav",
-            "src/com/queuingSystem/sounds/4.wav",
-            "src/com/queuingSystem/sounds/5.wav",
-            "src/com/queuingSystem/sounds/6.wav",
-            "src/com/queuingSystem/sounds/7.wav",
-            "src/com/queuingSystem/sounds/8.wav",
-            "src/com/queuingSystem/sounds/9.wav",
-            "src/com/queuingSystem/sounds/ten.wav",
-            "src/com/queuingSystem/sounds/hundred.wav",
-            "src/com/queuingSystem/sounds/thousand.wav",
-            "src/com/queuingSystem/sounds/tenThousand.wav",
-
+    String[] digits = new String[] {
+            "0.wav",
+            "1.wav",
+            "2.wav",
+            "3.wav",
+            "4.wav",
+            "5.wav",
+            "6.wav",
+            "7.wav",
+            "8.wav",
+            "9.wav",
+            "ten.wav",
+            "hundred.wav",
+            "thousand.wav",
+            "tenThousand.wav",
     };
-    private String please = "src/com/queuingSystem/sounds/please.wav";
-    private String customer = "src/com/queuingSystem/sounds/customer.wav";
-    private String desk = "src/com/queuingSystem/sounds/desk.wav";
+    String customer = "customer.wav";
+    String desk = "desk.wav";
+    String please = "please.wav";
 
 
     public ServerThreadCode(Socket s, LinkedList<Integer> _customers, Vector<Integer> _availableCounters, Vector<Integer> _availableTicketMachines, HashMap<Integer, Socket> _counters, HashMap<Integer, Socket> _ticketMachines) throws IOException {
